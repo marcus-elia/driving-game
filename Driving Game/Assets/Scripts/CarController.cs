@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿// This is from https://www.youtube.com/watch?v=Z4HA8zJhGEk
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,10 +49,7 @@ public class CarController : MonoBehaviour
         frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
         frontRightWheelCollider.motorTorque = verticalInput * motorForce;
         currentBrakeForce = isBraking ? brakeForce : 0f;
-        if(isBraking)
-        {
-            ApplyBraking();
-        }
+        ApplyBraking();
     }
 
     private void ApplyBraking()
