@@ -23,14 +23,14 @@ public class Intersection
 
     // There are 8 main target points for cars to drive through. This is the offset from the center
     // of the intersection.
-    private static Vector3 leftInOffset = new Vector3(-sideLength/2 - buffer, 0, -sideLength/2);
-    private static Vector3 leftOutOffset = new Vector3(-sideLength/2 - buffer, 0, sideLength/2);
-    private static Vector3 rightInOffset = new Vector3(sideLength/2 + buffer, 0, sideLength/2);
-    private static Vector3 rightOutOffset = new Vector3(sideLength/2 + buffer, 0, -sideLength/2);
-    private static Vector3 upInOffset = new Vector3(-sideLength/2, 0, sideLength/2 + buffer);
-    private static Vector3 upOutOffset = new Vector3(sideLength/2, 0, sideLength/2 + buffer);
-    private static Vector3 downInOffset = new Vector3(sideLength/2, 0, -sideLength/2 - buffer);
-    private static Vector3 downOutOffset = new Vector3(-sideLength/2, 0, -sideLength/2 - buffer);
+    public static Vector3 leftInOffset = new Vector3(-sideLength/2 - buffer, 0, -sideLength/4);
+    public static Vector3 leftOutOffset = new Vector3(-sideLength/2 - buffer, 0, sideLength/4);
+    public static Vector3 rightInOffset = new Vector3(sideLength/2 + buffer, 0, sideLength/4);
+    public static Vector3 rightOutOffset = new Vector3(sideLength/2 + buffer, 0, -sideLength/4);
+    public static Vector3 upInOffset = new Vector3(-sideLength/4, 0, sideLength/2 + buffer);
+    public static Vector3 upOutOffset = new Vector3(sideLength/4, 0, sideLength/2 + buffer);
+    public static Vector3 downInOffset = new Vector3(sideLength/4, 0, -sideLength/2 - buffer);
+    public static Vector3 downOutOffset = new Vector3(-sideLength/4, 0, -sideLength/2 - buffer);
 
     // It's also good to have the 4 corners for calculating curves
     private static Vector3 bottomRightOffset = new Vector3(sideLength/2 + buffer, 0, -sideLength/2 - buffer);
@@ -39,8 +39,8 @@ public class Intersection
     private static Vector3 bottomLeftOffset = new Vector3(-sideLength/2 - buffer, 0, -sideLength/2 - buffer);
 
     private static int turnSmoothness = 5;
-    private static float rightRadius = 7.5f;
-    private static float leftRadius = 12.5f;
+    private static float rightRadius = 4.5f;
+    private static float leftRadius = 9.5f;
 
     // Private variables
     private Vector3 center;
@@ -71,6 +71,7 @@ public class Intersection
 
     private void initializeDirections()
     {
+        directions = new List<Direction>();
         if(left != null)
         {
             directions.Add(Direction.Left);
@@ -91,7 +92,8 @@ public class Intersection
 
     private void createChoiceToPoints()
     {
-        for(int i = 0; i < directions.Count; i++)
+        choiceToPoints = new Dictionary<TurnChoice, List<Vector3>>();
+        for (int i = 0; i < directions.Count; i++)
         {
             for(int j = 0; j < directions.Count; j++)
             {
@@ -214,6 +216,36 @@ public class Intersection
         return output;
     }
 
+    // Adding in new neighbors
+    public void addLeft(Intersection inputLeft)
+    {
+        left = inputLeft;
+        // Re-initialize directions and points
+        this.initializeDirections();
+        this.createChoiceToPoints();
+    }
+    public void addRight(Intersection inputRight)
+    {
+        right = inputRight;
+        // Re-initialize directions and points
+        this.initializeDirections();
+        this.createChoiceToPoints();
+    }
+    public void addUp(Intersection inputUp)
+    {
+        up = inputUp;
+        // Re-initialize directions and points
+        this.initializeDirections();
+        this.createChoiceToPoints();
+    }
+    public void addDown(Intersection inputDown)
+    {
+        down = inputDown;
+        // Re-initialize directions and points
+        this.initializeDirections();
+        this.createChoiceToPoints();
+    }
+
     // Functions for cars to use
     public Direction getRandomDirection(Direction dirIn)
     {
@@ -248,5 +280,9 @@ public class Intersection
         {
             return down;
         }
+    }
+    public Vector3 getCenter()
+    {
+        return center;
     }
 }
