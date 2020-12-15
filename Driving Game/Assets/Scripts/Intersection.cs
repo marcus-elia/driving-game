@@ -38,7 +38,7 @@ public class Intersection
     private static Vector3 topLeftOffset = new Vector3(-sideLength/2 - buffer, 0, sideLength/2 + buffer);
     private static Vector3 bottomLeftOffset = new Vector3(-sideLength/2 - buffer, 0, -sideLength/2 - buffer);
 
-    private static int turnSmoothness = 5;
+    private static int turnSmoothness = 12;
     private static float rightRadius = 4.5f;
     private static float leftRadius = 9.5f;
 
@@ -48,7 +48,7 @@ public class Intersection
     private List<Direction> directions;
 
     // For each choice a car can make, here are the points it needs to follow
-    private Dictionary<TurnChoice, List<Vector3>> choiceToPoints;
+    private Dictionary<int, List<Vector3>> intToPoints;
 
     // Pointers to neighboring intersections
     private Intersection left, right, up, down;
@@ -92,7 +92,7 @@ public class Intersection
 
     private void createChoiceToPoints()
     {
-        choiceToPoints = new Dictionary<TurnChoice, List<Vector3>>();
+        intToPoints = new Dictionary<int, List<Vector3>>();
         for (int i = 0; i < directions.Count; i++)
         {
             for(int j = 0; j < directions.Count; j++)
@@ -101,7 +101,12 @@ public class Intersection
                 {
                     continue;
                 }
-                choiceToPoints[new TurnChoice(directions[i], directions[j])] = calculateTurnPoints(directions[i], directions[j]);
+                List<Vector3> points = calculateTurnPoints(directions[i], directions[j]);
+                if(points.Count == 0)
+                {
+                    Debug.LogError("No");
+                }
+                intToPoints[directionsToInt(directions[i], directions[j])] = points;
             }
         }
     }
@@ -131,40 +136,40 @@ public class Intersection
         else if(dirIn == Direction.Down && dirOut == Direction.Right)
         {
             Vector3 corner = center + bottomRightOffset;
-            float theta = Mathf.PI / 2;
+            float theta = Mathf.PI;
             for(int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta -= (Mathf.PI/2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * rightRadius, 0, corner.z + Mathf.Sin(theta) * rightRadius));
             }
         }
         else if(dirIn == Direction.Right && dirOut == Direction.Up)
         {
             Vector3 corner = center + topRightOffset;
-            float theta = Mathf.PI;
+            float theta = 3*Mathf.PI/2;
             for (int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta -= (Mathf.PI/2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * rightRadius, 0, corner.z + Mathf.Sin(theta) * rightRadius));
             }
         }
         else if(dirIn == Direction.Up && dirOut == Direction.Left)
         {
             Vector3 corner = center + topLeftOffset;
-            float theta = 3*Mathf.PI/2;
+            float theta = 0;
             for(int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta -= (Mathf.PI / 2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * rightRadius, 0, corner.z + Mathf.Sin(theta) * rightRadius));
             }
         }
         else if(dirIn == Direction.Left && dirOut == Direction.Down)
         {
             Vector3 corner = center + bottomLeftOffset;
-            float theta = 0f;
+            float theta = Mathf.PI/2;
             for(int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta -= (Mathf.PI / 2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * rightRadius, 0, corner.z + Mathf.Sin(theta) * rightRadius));
             }
         }
@@ -172,40 +177,40 @@ public class Intersection
         else if(dirIn == Direction.Down && dirOut == Direction.Left)
         {
             Vector3 corner = center + bottomLeftOffset;
-            float theta = Mathf.PI / 2;
+            float theta = 0;
             for (int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta += (Mathf.PI/2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * leftRadius, 0, corner.z + Mathf.Sin(theta) * leftRadius));
             }
         }
         else if(dirIn == Direction.Right && dirOut == Direction.Down)
         {
             Vector3 corner = center + bottomRightOffset;
-            float theta = Mathf.PI;
+            float theta = Mathf.PI/2;
             for(int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta += (Mathf.PI / 2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * leftRadius, 0, corner.z + Mathf.Sin(theta) * leftRadius));
             }
         }
         else if(dirIn == Direction.Up && dirOut == Direction.Right)
         {
             Vector3 corner = center + topRightOffset;
-            float theta = 3*Mathf.PI/2;
+            float theta = Mathf.PI;
             for(int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta += (Mathf.PI / 2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * leftRadius, 0, corner.z + Mathf.Sin(theta) * leftRadius));
             }
         }
         else if(dirIn == Direction.Left && dirOut == Direction.Up)
         {
             Vector3 corner = center + topLeftOffset;
-            float theta = 0;
+            float theta = 3*Mathf.PI/2;
             for(int i = 0; i < turnSmoothness; i++)
             {
-                theta += Mathf.PI / turnSmoothness;
+                theta += (Mathf.PI / 2) / turnSmoothness;
                 output.Add(new Vector3(corner.x + Mathf.Cos(theta) * leftRadius, 0, corner.z + Mathf.Sin(theta) * leftRadius));
             }
         }
@@ -213,6 +218,7 @@ public class Intersection
         {
             Debug.LogError("Can't leave an intersection from the same direction you entered.");
         }
+
         return output;
     }
 
@@ -260,7 +266,7 @@ public class Intersection
     }
     public List<Vector3> getTurnPoints(Direction dirIn, Direction dirOut)
     {
-        return choiceToPoints[new TurnChoice(dirIn, dirOut)];
+        return intToPoints[directionsToInt(dirIn, dirOut)];
     }
     public Intersection getNextIntersection(Direction dirOut)
     {
@@ -284,5 +290,62 @@ public class Intersection
     public Vector3 getCenter()
     {
         return center;
+    }
+
+    // Needed when going through intersections
+    public static Direction reverseDirection(Direction dir)
+    {
+        if (dir == Direction.Left)
+        {
+            return Direction.Right;
+        }
+        if (dir == Direction.Right)
+        {
+            return Direction.Left;
+        }
+        if (dir == Direction.Up)
+        {
+            return Direction.Down;
+        }
+        return Direction.Up;
+    }
+    // Converts pairs of directions to ints
+    // LL = 0, LR = 1, LU = 2, LD = 3, RL = 4, RR = 5, etc
+    public static int directionsToInt(Direction dir1, Direction dir2)
+    {
+        int a, b;
+        if(dir1 == Direction.Left)
+        {
+            a = 0;
+        }
+        else if(dir1 == Direction.Right)
+        {
+            a = 1;
+        }
+        else if(dir1 == Direction.Up)
+        {
+            a = 2;
+        }
+        else
+        {
+            a = 3;
+        }
+        if (dir2 == Direction.Left)
+        {
+            b = 0;
+        }
+        else if (dir2 == Direction.Right)
+        {
+            b = 1;
+        }
+        else if (dir2 == Direction.Up)
+        {
+            b = 2;
+        }
+        else
+        {
+            b = 3;
+        }
+        return 4 * a + b;
     }
 }

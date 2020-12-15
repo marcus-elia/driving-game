@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class CarAI : MonoBehaviour
 {
-    public GameObject targetMarker;
-    private GameObject curMarker;
-
     private Intersection currentInt;
     private Intersection nextInt;
     private Direction currentDir;
@@ -20,6 +17,8 @@ public class CarAI : MonoBehaviour
     public float centerHeight; // How high above the ground it is
 
     public static float tolerance = 0.1f;
+
+    private int targetPointsIndex = 0; // Keep track of where we are in the list
 
     // Start is called before the first frame update
     void Start()
@@ -57,15 +56,13 @@ public class CarAI : MonoBehaviour
     {
         points = inputPoints;
         target = points[0];
-        curMarker = Instantiate(targetMarker);
-        curMarker.transform.position = target;
     }
     public void setVelocity()
     {
         float angleToMove = Mathf.Atan2(target.z - transform.position.z, target.x - transform.position.x);
         velocity.x = Mathf.Cos(angleToMove) * speed;
         velocity.z = Mathf.Sin(angleToMove) * speed;
-        transform.Rotate(Vector3.up, angleToMove - currentAngle);
+        transform.Rotate(0f, -Mathf.Rad2Deg*(angleToMove - currentAngle), 0f, Space.World);
         currentAngle = angleToMove;
     }
 
@@ -73,23 +70,22 @@ public class CarAI : MonoBehaviour
     void Update()
     {
         float distance = Mathf.Sqrt((target.x - transform.position.x)* (target.x - transform.position.x) + (target.z - transform.position.z) * (target.z - transform.position.z));
-        Debug.Log(distance);
+        
         // If the car got to it's target
         if(distance < tolerance)
         {
-            points.RemoveAt(0);
-            if(points.Count == 0) // If we finished the intersection
+            targetPointsIndex++;
+            if(points.Count == targetPointsIndex) // If we finished the intersection
             {
                 currentInt = nextInt;
-                currentDir = nextDir;
-                nextDir = currentInt.getRandomDirection(nextDir);
+                currentDir = Intersection.reverseDirection(nextDir);
+                nextDir = currentInt.getRandomDirection(currentDir);
                 nextInt = currentInt.getNextIntersection(nextDir);
                 points = currentInt.getTurnPoints(currentDir, nextDir);
+                targetPointsIndex = 0;
             }
             // Now target the next point  
-            target = points[0];
-            curMarker = Instantiate(targetMarker);
-            curMarker.transform.position = target;
+            target = points[targetPointsIndex];
 
             // Set velocity and angles accordingly
             this.setVelocity();

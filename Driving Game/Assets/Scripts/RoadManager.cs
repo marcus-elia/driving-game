@@ -53,21 +53,21 @@ public class RoadManager : MonoBehaviour
         intersections.Add(new Intersection(new Vector3(44, 0, 37), intersections[8], null, intersections[11], null));
         intersections[8].addRight(intersections[12]);
         intersections[11].addDown(intersections[12]);
-        intersections.Add(new Intersection(new Vector3(44, 0, 0), null, null, intersections[12], null));
+        intersections.Add(new Intersection(new Vector3(44, 0, -7), null, null, intersections[12], null));
         intersections[12].addDown(intersections[13]);
         intersections.Add(new Intersection(new Vector3(44, 0, -81), intersections[10], null, intersections[13], null));
         intersections[10].addRight(intersections[14]);
         intersections[13].addDown(intersections[14]);
-        intersections.Add(new Intersection(new Vector3(88, 0, 0), intersections[13], null, null, null));
+        intersections.Add(new Intersection(new Vector3(58, 0, -7), intersections[13], null, null, null));
         intersections[13].addRight(intersections[15]);
-        intersections.Add(new Intersection(new Vector3(88, 0, -81), intersections[14], null, intersections[15], null));
+        intersections.Add(new Intersection(new Vector3(58, 0, -81), intersections[14], null, intersections[15], null));
         intersections[14].addRight(intersections[16]);
         intersections[15].addDown(intersections[16]);
 
         car1.setCurrentInt(intersections[8]);
-        car1.setCurrentDir(Direction.Up);
+        car1.setCurrentDir(Direction.Down);
         car1.setNextInt(intersections[7]);
-        car1.setNextDir(Direction.Right);
+        car1.setNextDir(Direction.Up);
         car1.setLocation(Intersection.downInOffset + intersections[8].getCenter());
         car1.setAngle(Mathf.PI / 2);
         car1.setPoints(intersections[8].getTurnPoints(Direction.Down, Direction.Up));
