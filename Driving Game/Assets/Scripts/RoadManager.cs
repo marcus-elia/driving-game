@@ -5,6 +5,8 @@ using UnityEngine;
 public class RoadManager : MonoBehaviour
 {
     public CarAI car1;
+    public CarAI car2;
+    public CarAI car3;
 
     List<Intersection> intersections;
 
@@ -73,6 +75,23 @@ public class RoadManager : MonoBehaviour
         car1.setPoints(intersections[8].getTurnPoints(Direction.Down, Direction.Up));
         car1.setVelocity();
 
+        car2.setCurrentInt(intersections[1]);
+        car2.setCurrentDir(Direction.Down);
+        car2.setNextInt(intersections[2]);
+        car2.setNextDir(Direction.Down);
+        car2.setLocation(Intersection.upInOffset + intersections[1].getCenter());
+        car2.setAngle(3*Mathf.PI / 2);
+        car2.setPoints(intersections[1].getTurnPoints(Direction.Up, Direction.Down));
+        car2.setVelocity();
+
+        car3.setCurrentInt(intersections[10]);
+        car3.setCurrentDir(Direction.Left);
+        car3.setNextInt(intersections[9]);
+        car3.setNextDir(Direction.Up);
+        car3.setLocation(Intersection.upInOffset + intersections[10].getCenter());
+        car3.setAngle(0f);
+        car3.setPoints(intersections[10].getTurnPoints(Direction.Left, Direction.Up));
+        car3.setVelocity();
     }
 
     // Update is called once per frame
